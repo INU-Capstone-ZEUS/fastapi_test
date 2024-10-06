@@ -1,11 +1,14 @@
 from fastapi import FastAPI
 import joblib
 import numpy as np
-
+from sklearn.datasets import load_iris  # 추가
 app = FastAPI()
 
 # Load the trained model
 model = joblib.load('model.joblib')
+
+# Load the iris dataset
+iris = load_iris()  # 추가
 
 @app.get("/")
 def read_root():

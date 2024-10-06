@@ -40,9 +40,11 @@ jobs:
     steps:
       - name: Deploy to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_KEY }} ec2-user@13.124.230.180 << 'EOF'
-            docker pull dlwpdnr213/fastapi_test:v1
+          echo "${{ secrets.EC2_KEY }}" > ec2_key.pem
+          chmod 600 ec2_key.pem
+          ssh -o StrictHostKeyChecking=no -i ec2_key.pem ec2-user@13.124.230.180 << 'EOF'
+            docker pull ${{ secrets.DOCKER_USERNAME }}/fastapi_test:v1
             docker stop my_fastapi_container || true
             docker rm my_fastapi_container || true
-            docker run -d -p 8000:8000 --name my_fastapi_container dlwpdnr213/fastapi_test:v1
+            docker run -d -p 8000:8000 --name my_fastapi_container ${{ secrets.DOCKER_USERNAME }}/fastapi_test:v1
           EOF

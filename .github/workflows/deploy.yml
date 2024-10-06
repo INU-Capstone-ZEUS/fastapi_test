@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Deploy to EC2
 
 on:
   push:
@@ -6,31 +6,13 @@ on:
       - main  # exec when pushed main branch
 
 jobs:
-  build:
+  deploy:
+    needs: build  # build 작업이 완료된 후 실행
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: dlwpdnr213/fastapi_test:v1
-
       - name: Deploy to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_KEY }} ec2-user@<13.124.230.180> << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_KEY }} ec2-user@13.124.230.180 << 'EOF'
             docker pull dlwpdnr213/fastapi_test:v1
             docker stop my_fastapi_container || true
             docker rm my_fastapi_container || true
